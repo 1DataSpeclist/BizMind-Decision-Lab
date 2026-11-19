@@ -1,0 +1,51 @@
+product_id,product_name,category,supplier_id,cost_price,selling_price,initial_stock,minimum_stock,minimum_order_quantity
+1,Rice,Grocery,5,442.78,689.16,70,20,5
+2,Wheat Flour,Grocery,3,834.35,1019.64,93,17,19
+3,Sugar,Grocery,1,703.26,856.62,113,16,20
+4,Cooking Oil,Grocery,6,319.24,529.99,93,26,8
+5,Tea,Grocery,9,833.94,1141.39,88,19,5
+6,Coffee,Grocery,1,806.72,1061.26,143,26,6
+7,Biscuits,Grocery,9,393.6,558.41,57,29,6
+8,Milk Powder,Grocery,9,295.44,447.47,102,16,18
+9,Salt,Grocery,3,685.67,1148.9,99,14,19
+10,Pulses,Grocery,7,148.35,193.97,92,29,7
+11,Headphones,Electronics,2,207.91,344.85,128,22,16
+12,Mouse,Electronics,8,17.29,20.12,69,15,7
+13,Keyboard,Electronics,8,789.06,1148.37,144,22,10
+14,USB Cable,Electronics,4,668.2,1001.42,76,20,14
+15,Power Bank,Electronics,1,708.11,855.57,99,28,16
+16,Charger,Electronics,10,782.92,960.79,97,15,18
+17,Speaker,Electronics,5,464.33,641.01,133,29,5
+18,Memory Card,Electronics,9,573.05,963.54,88,28,8
+19,Webcam,Electronics,7,148.4,219.31,71,13,9
+20,Calculator,Electronics,8,123.38,205.2,42,13,9
+21,T-Shirt,Clothing,8,671.72,1069.65,80,20,20
+22,Jeans,Clothing,2,476.39,670.31,130,10,17
+23,Shirt,Clothing,4,569.58,900.86,41,15,10
+24,Jacket,Clothing,5,767.35,889.98,138,18,20
+25,Track Pants,Clothing,5,638.37,772.45,99,29,12
+26,Socks,Clothing,1,558.04,896.32,55,29,13
+27,Belt,Clothing,6,563.62,895.17,73,13,11
+28,Cap,Clothing,2,310.91,397.33,100,27,7
+29,Shoes,Clothing,8,40.51,58.41,74,11,19
+30,Shorts,Clothing,7,442.35,656.14,51,24,5
+31,Shampoo,Personal Care,10,222.44,361.97,113,26,7
+32,Soap,Personal Care,8,414.44,614.08,113,27,8
+33,Toothpaste,Personal Care,4,854.87,1177.08,53,14,9
+34,Face Wash,Personal Care,10,241.6,327.56,70,27,7
+35,Hair Oil,Personal Care,5,67.72,93.74,66,12,5
+36,Body Lotion,Personal Care,4,288.57,435.33,112,20,15
+37,Deodorant,Personal Care,10,300.66,489.21,120,19,20
+38,Toothbrush,Personal Care,4,665.3,931.18,119,16,6
+39,Hand Wash,Personal Care,1,561.46,722.21,143,10,9
+40,Comb,Personal Care,5,786.06,1006.29,124,25,13
+41,Notebook,Stationery,8,667.67,1041.77,75,16,19
+42,Pen,Stationery,2,412.32,659.35,51,23,16
+43,Pencil,Stationery,5,815.88,985.5,107,18,17
+44,Marker,Stationery,2,175.3,208.01,140,17,14
+45,Eraser,Stationery,7,32.48,47.97,147,27,11
+46,Ruler,Stationery,5,99.15,121.99,65,11,8
+47,File Folder,Stationery,4,725.14,1162.81,66,24,18
+48,Stapler,Stationery,3,467.26,617.1,44,24,17
+49,Glue,Stationery,6,169.66,208.53,55,17,5
+50,Scissors,Stationery,7,506.03,838.26,101,15,16

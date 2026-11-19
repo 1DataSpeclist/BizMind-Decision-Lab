@@ -1,0 +1,760 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BizMind Decision Lab | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .dashboard-page {
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .dashboard-welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .dashboard-welcome h1 {
+            font-size: 30px;
+            font-weight: 750;
+            letter-spacing: -1px;
+            margin-bottom: 7px;
+        }
+
+        .dashboard-welcome p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .welcome-tag {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 9px 15px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .data-period {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .data-period-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 10px;
+            font-size: 20px;
+        }
+
+        .data-period-label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .data-period h3 {
+            font-size: 17px;
+            font-weight: 750;
+        }
+
+        .data-period-description {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .dashboard-section {
+            margin-top: 34px;
+        }
+
+        .dashboard-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .dashboard-section-header h2 {
+            font-size: 19px;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-section-header p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .dashboard-stat {
+            background: white;
+            padding: 23px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 19px;
+            gap: 10px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .dashboard-stat h2 {
+            font-size: 25px;
+            font-weight: 750;
+            letter-spacing: -0.7px;
+            overflow-wrap: anywhere;
+            margin-bottom: 6px;
+        }
+
+        .dashboard-stat p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .module-card {
+            display: block;
+            background: white;
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            text-decoration: none;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transition: 0.2s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            border-color: #c9c5ff;
+            box-shadow: 0 10px 25px rgba(30, 40, 80, 0.08);
+        }
+
+        .module-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 20px;
+            margin-bottom: 17px;
+        }
+
+        .module-card h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .module-card p {
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--muted);
+            min-height: 43px;
+        }
+
+        .module-link {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .dashboard-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px 20px;
+            margin-top: 30px;
+            background: #eef2ff;
+            border: 1px solid #dfe5ff;
+            border-radius: 11px;
+        }
+
+        .dashboard-info p {
+            color: #53617c;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .dashboard-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .module-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .dashboard-welcome {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .dashboard-welcome h1 {
+                font-size: 24px;
+            }
+
+            .dashboard-stats,
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-section-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        .period-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .period-filter {
+            display: flex;
+            align-items: end;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .period-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .period-field label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 650;
+        }
+
+        .period-field select,
+        .period-field input {
+            min-height: 38px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: #fff;
+            color: var(--text);
+            font: inherit;
+            font-size: 12px;
+        }
+
+        .period-filter button {
+            min-height: 38px;
+            padding: 8px 16px;
+            border: 0;
+            border-radius: 7px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 650;
+            cursor: pointer;
+        }
+
+        .period-filter button:hover {
+            opacity: 0.9;
+        }
+
+        .custom-date-fields {
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-date-fields.visible {
+            display: flex;
+        }
+
+        .filter-error {
+            margin-top: 9px;
+            color: #b42318;
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .data-period {
+                align-items: flex-start;
+            }
+
+            .period-filter,
+            .custom-date-fields {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .period-field select,
+            .period-field input,
+            .period-filter button {
+                width: 100%;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>BizMind</h2>
+            <p>Decision Lab</p>
+        </div>
+
+        <nav>
+            <a href="/" class="active">Dashboard</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/forecasting">Forecasting</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/optimization">Optimization</a>
+            <a href="/simulator">What-if Simulator</a>
+            <a href="/data-management">Data Management</a>
+        </nav>
+
+        <div style="margin-top: 45px; padding: 12px;">
+            <p style="color:#929bad; font-size:11px; line-height:1.7;">
+                RETAIL BUSINESS<br>
+                INTELLIGENCE PLATFORM
+            </p>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN DASHBOARD -->
+    <main class="main-content dashboard-page">
+
+        <!-- WELCOME HEADER -->
+        <section class="dashboard-welcome">
+
+            <div>
+                <h1>Business Overview</h1>
+
+                <p>
+                    Monitor retail performance, analyse business data
+                    and make informed decisions.
+                </p>
+            </div>
+
+            <div class="welcome-tag">
+                BUSINESS INTELLIGENCE
+            </div>
+
+        </section>
+
+
+        <!-- HISTORICAL DATA PERIOD AND DATE FILTER -->
+        <section class="data-period">
+
+            <div class="data-period-icon">▦</div>
+
+            <div class="period-content">
+
+                <p class="data-period-label">DASHBOARD DATE FILTER</p>
+
+                <h3>{{ period_label }}</h3>
+
+                <p class="data-period-description">
+                    Showing sales from {{ start_date }} to {{ end_date }}.
+                    Available dataset: {{ data_min_date }} to {{ data_max_date }}.
+                </p>
+
+                <form method="GET" action="/" class="period-filter" id="periodFilter">
+
+                    <div class="period-field">
+                        <label for="period">Select Period</label>
+                        <select name="period" id="period">
+                            <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Today</option>
+                            <option value="yesterday" {% if selected_period == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                            <option value="7_days" {% if selected_period == '7_days' %}selected{% endif %}>Last 7 Days</option>
+                            <option value="30_days" {% if selected_period == '30_days' %}selected{% endif %}>Last 30 Days</option>
+                            <option value="3_months" {% if selected_period == '3_months' %}selected{% endif %}>Last 3 Months</option>
+                            <option value="6_months" {% if selected_period == '6_months' %}selected{% endif %}>Last 6 Months</option>
+                            <option value="1_year" {% if selected_period == '1_year' %}selected{% endif %}>Last 1 Year</option>
+                            <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>Custom Date Range</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-date-fields {% if selected_period == 'custom' %}visible{% endif %}" id="customDateFields">
+
+                        <div class="period-field">
+                            <label for="start_date">Start Date</label>
+                            <input type="date" name="start_date" id="start_date"
+                                   value="{{ start_date }}" max="{{ today }}">
+                        </div>
+
+                        <div class="period-field">
+                            <label for="end_date">End Date</label>
+                            <input type="date" name="end_date" id="end_date"
+                                   value="{{ end_date }}" max="{{ today }}">
+                        </div>
+
+                    </div>
+
+                    <button type="submit">Apply Filter</button>
+
+                </form>
+
+                {% if filter_error %}
+                    <p class="filter-error">{{ filter_error }}</p>
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- KPI SECTION -->
+        <section>
+
+            <div class="dashboard-section-header">
+                <div>
+                    <h2>Business Performance</h2>
+                    <p>Key performance indicators from your retail dataset.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-stats">
+
+                <!-- REVENUE -->
+                <div class="dashboard-stat">
+
+                    <div class="stat-top">
+                        <span class="stat-label">Revenue</span>
+                        <div class="stat-icon">₹</div>
+                    </div>
+
+                    <h2>
+                        ₹{{ "{:,.2f}".format(stats.total_revenue) }}
+                    </h2>
+
+                    <p>Revenue for the selected period</p>
+
+                </div>
+
+
+                <!-- PROFIT -->
+                <div class="dashboard-stat">
+
+                    <div class="stat-top">
+                        <span class="stat-label">Profit</span>
+                        <div class="stat-icon">↗</div>
+                    </div>
+
+                    <h2>
+                        ₹{{ "{:,.2f}".format(stats.total_profit) }}
+                    </h2>
+
+                    <p>Profit for the selected period</p>
+
+                </div>
+
+
+                <!-- UNITS -->
+                <div class="dashboard-stat">
+
+                    <div class="stat-top">
+                        <span class="stat-label">Units Sold</span>
+                        <div class="stat-icon">▦</div>
+                    </div>
+
+                    <h2>
+                        {{ "{:,}".format(stats.total_units_sold) }}
+                    </h2>
+
+                    <p>Units sold during the selected period</p>
+
+                </div>
+
+
+                <!-- REORDER -->
+                <div class="dashboard-stat">
+
+                    <div class="stat-top">
+                        <span class="stat-label">Products Requiring Reorder</span>
+                        <div class="stat-icon">!</div>
+                    </div>
+
+                    <h2>
+                        {{ "{:,}".format(stats.products_requiring_reorder) }}
+                    </h2>
+
+                    <p>Products currently at or below minimum stock</p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MODULE SECTION -->
+        <section class="dashboard-section">
+
+            <div class="dashboard-section-header">
+
+                <div>
+                    <h2>Decision Intelligence Modules</h2>
+
+                    <p>
+                        Access the analytical tools available
+                        in BizMind Decision Lab.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="module-grid">
+
+                <!-- ANALYTICS -->
+                <a href="/analytics" class="module-card">
+
+                    <div class="module-icon">▥</div>
+
+                    <h3>Business Analytics</h3>
+
+                    <p>
+                        Analyse revenue, profit, product performance
+                        and category-level business insights.
+                    </p>
+
+                    <span class="module-link">Explore Analytics →</span>
+
+                </a>
+
+
+                <!-- FORECASTING -->
+                <a href="/forecasting" class="module-card">
+
+                    <div class="module-icon">⌁</div>
+
+                    <h3>Demand Forecasting</h3>
+
+                    <p>
+                        Predict future product demand
+                        using a machine learning model.
+                    </p>
+
+                    <span class="module-link">View Forecasts →</span>
+
+                </a>
+
+
+                <!-- INVENTORY -->
+                <a href="/inventory" class="module-card">
+
+                    <div class="module-icon">▤</div>
+
+                    <h3>Inventory Management</h3>
+
+                    <p>
+                        Monitor stock availability,
+                        demand levels and inventory status.
+                    </p>
+
+                    <span class="module-link">Manage Inventory →</span>
+
+                </a>
+
+
+                <!-- OPTIMIZATION -->
+                <a href="/optimization" class="module-card">
+
+                    <div class="module-icon">⚙</div>
+
+                    <h3>Inventory Optimization</h3>
+
+                    <p>
+                        Calculate recommended replenishment
+                        quantities and purchasing requirements.
+                    </p>
+
+                    <span class="module-link">Optimize Inventory →</span>
+
+                </a>
+
+
+                <!-- SIMULATOR -->
+                <a href="/simulator" class="module-card">
+
+                    <div class="module-icon">◇</div>
+
+                    <h3>What-if Simulator</h3>
+
+                    <p>
+                        Evaluate how changes in price, cost
+                        and demand assumptions affect profit.
+                    </p>
+
+                    <span class="module-link">Run Simulation →</span>
+
+                </a>
+
+
+                <!-- DATA MANAGEMENT -->
+                <a href="/data-management" class="module-card">
+
+                    <div class="module-icon">▣</div>
+
+                    <h3>Data Management</h3>
+
+                    <p>
+                        Record daily sales, receive inventory,
+                        import CSV files and review transaction history.
+                    </p>
+
+                    <span class="module-link">Manage Business Data →</span>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- DATA INFORMATION -->
+        <section class="dashboard-info">
+
+            <div style="font-size:20px; color:#635bff;">
+                i
+            </div>
+
+            <p>
+                <strong>Dataset Information:</strong>
+                BizMind uses synthetic retail business data
+                for academic analysis, forecasting and
+                decision-support demonstrations.
+            </p>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+
+            BizMind Decision Lab |
+            Retail Business Intelligence Platform |
+            Academic Project
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+    const periodSelect = document.getElementById("period");
+    const customDateFields = document.getElementById("customDateFields");
+    const startDateInput = document.getElementById("start_date");
+    const endDateInput = document.getElementById("end_date");
+
+    function toggleCustomDates() {
+        const isCustom = periodSelect.value === "custom";
+
+        customDateFields.classList.toggle("visible", isCustom);
+
+        startDateInput.required = isCustom;
+        endDateInput.required = isCustom;
+    }
+
+    periodSelect.addEventListener("change", toggleCustomDates);
+    toggleCustomDates();
+
+    document.getElementById("periodFilter").addEventListener("submit", function (event) {
+
+        if (
+            periodSelect.value === "custom" &&
+            startDateInput.value &&
+            endDateInput.value &&
+            startDateInput.value > endDateInput.value
+        ) {
+            event.preventDefault();
+            alert("Start date cannot be later than end date.");
+        }
+
+    });
+</script>
+
+</body>
+</html>

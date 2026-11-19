@@ -1,0 +1,11 @@
+supplier_id,supplier_name,lead_time_days,reliability_score
+1,Alpha Distributors,2,0.99
+2,Metro Wholesale,8,0.94
+3,Prime Suppliers,7,0.95
+4,National Traders,5,0.82
+5,Shree Enterprises,5,0.89
+6,City Distributors,9,0.87
+7,Reliable Supplies,2,0.98
+8,Global Wholesale,8,0.92
+9,Smart Traders,3,0.96
+10,Unity Distributors,2,0.88

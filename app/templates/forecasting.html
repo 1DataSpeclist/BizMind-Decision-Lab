@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Demand Forecasting | BizMind</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .forecasting-page {
+            min-width: 0;
+            min-height: 100vh;
+            height: auto;
+            overflow: visible;
+        }
+
+        .forecast-chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+        }
+
+        .forecast-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .forecast-disclaimer {
+            margin-top: 30px;
+        }
+
+        @media (max-width: 700px) {
+            .forecast-chart-container {
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>BizMind</h2>
+            <p>Decision Lab</p>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/forecasting" class="active">Forecasting</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/optimization">Optimization</a>
+            <a href="/simulator">What-if Simulator</a>
+            <a href="/data-management">Data Management</a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content forecasting-page">
+
+        <!-- PAGE HEADER -->
+        <div class="forecast-header">
+
+            <h1>Demand Forecasting</h1>
+
+            <p>
+                Predict future product demand using machine learning
+                and historical sales data.
+            </p>
+
+        </div>
+
+        <!-- PRODUCT SELECTION -->
+        <div class="feature-card forecast-selector">
+
+            <h2>Select Product</h2>
+
+            <p>
+                Choose a product to generate its seven-day demand forecast.
+            </p>
+
+            <form method="GET" action="/forecasting">
+
+                <select name="product_id" required>
+
+                    <option value="">Choose a product</option>
+
+                    {% for product in products %}
+
+                    <option
+                        value="{{ product.product_id }}"
+                        {% if selected_product and
+                        selected_product.product_id == product.product_id %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ product.product_name }}
+                        ({{ product.category }})
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <button type="submit">
+                    Generate Forecast
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- FORECAST ERROR -->
+        {% if forecast_error %}
+
+        <div class="forecast-error">
+            {{ forecast_error }}
+        </div>
+
+        {% endif %}
+
+        <!-- FORECAST RESULTS -->
+        {% if forecast %}
+
+        {% set total_demand = forecast | sum(attribute='predicted_demand') %}
+        {% set average_demand = total_demand / (forecast | length) %}
+
+        <div class="feature-card forecast-results">
+
+            <!-- RESULT HEADER -->
+            <div class="forecast-title">
+
+                <h2>7-Day Demand Forecast</h2>
+
+                <p>
+                    Product:
+                    <strong>
+                        {{ selected_product.product_name }}
+                    </strong>
+                </p>
+
+            </div>
+
+            <!-- SUMMARY CARDS -->
+            <div class="forecast-summary-grid">
+
+                <div class="forecast-summary-card">
+
+                    <p>Total Predicted Demand</p>
+
+                    <h3>
+                        {{ "%.2f"|format(total_demand) }}
+                    </h3>
+
+                    <span>Units over 7 days</span>
+
+                </div>
+
+                <div class="forecast-summary-card">
+
+                    <p>Average Daily Demand</p>
+
+                    <h3>
+                        {{ "%.2f"|format(average_demand) }}
+                    </h3>
+
+                    <span>Units per day</span>
+
+                </div>
+
+                <div class="forecast-summary-card">
+
+                    <p>Forecast Duration</p>
+
+                    <h3>7 Days</h3>
+
+                    <span>Future demand estimate</span>
+
+                </div>
+
+            </div>
+
+            <!-- FORECAST CHART -->
+            <div class="forecast-chart-section">
+
+                <h3>Predicted Demand Trend</h3>
+
+                <p>
+                    Estimated daily product demand for the next seven days.
+                </p>
+
+                <div class="forecast-chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+
+            </div>
+
+            <!-- FORECAST TABLE -->
+            <div class="forecast-table-section">
+
+                <h3>Forecast Details</h3>
+
+                <div class="forecast-table-wrapper">
+
+                    <table class="forecast-table">
+
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Predicted Demand</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in forecast %}
+
+                            <tr>
+
+                                <td>
+                                    {{ item.date }}
+                                </td>
+
+                                <td>
+                                    {{ "%.2f"|format(item.predicted_demand) }}
+                                    units
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                        <tfoot>
+
+                            <tr>
+                                <th>Total</th>
+
+                                <th>
+                                    {{ "%.2f"|format(total_demand) }} units
+                                </th>
+                            </tr>
+
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CHART SCRIPT -->
+        <script>
+
+            const forecastData = {{ forecast | tojson }};
+
+            const chartCanvas = document.getElementById(
+                "forecastChart"
+            );
+
+            new Chart(chartCanvas, {
+
+                type: "line",
+
+                data: {
+
+                    labels: forecastData.map(
+                        item => item.date
+                    ),
+
+                    datasets: [{
+
+                        label: "Predicted Demand",
+
+                        data: forecastData.map(
+                            item => item.predicted_demand
+                        ),
+
+                        borderColor: "#647d68",
+
+                        backgroundColor: "rgba(100, 125, 104, 0.12)",
+
+                        borderWidth: 3,
+
+                        pointRadius: 5,
+
+                        pointHoverRadius: 7,
+
+                        pointBackgroundColor: "#647d68",
+
+                        pointBorderColor: "#ffffff",
+
+                        pointBorderWidth: 2,
+
+                        tension: 0.35,
+
+                        fill: true
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+                            display: true,
+                            position: "top"
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label: function(context) {
+
+                                    return (
+                                        "Predicted Demand: "
+                                        + context.parsed.y
+                                        + " units"
+                                    );
+
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            title: {
+                                display: true,
+                                text: "Predicted Units"
+                            }
+
+                        },
+
+                        x: {
+
+                            title: {
+                                display: true,
+                                text: "Forecast Date"
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        </script>
+
+        {% endif %}
+
+        <!-- DISCLAIMER -->
+        <div class="forecast-disclaimer">
+
+            <strong>Forecast Disclaimer</strong>
+
+            <p>
+                Forecasts are machine learning estimates based on
+                historical synthetic sales data. Predictions are not
+                guaranteed actual sales. Real demand may vary due to
+                market conditions, seasonality, promotions and other factors.
+            </p>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

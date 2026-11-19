@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inventory Optimization | BizMind</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .optimization-page {
+            min-width: 0;
+            min-height: 100vh;
+            height: auto;
+            overflow: visible;
+        }
+
+        .optimization-header {
+            margin-bottom: 28px;
+        }
+
+        .optimization-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .optimization-header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .optimization-card {
+            margin-top: 24px;
+        }
+
+        .optimization-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 18px;
+        }
+
+        .optimization-table {
+            width: 100%;
+            min-width: 1000px;
+            border-collapse: collapse;
+        }
+
+        .optimization-table th,
+        .optimization-table td {
+            padding: 14px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .optimization-table th {
+            background: #f3f5fa;
+            color: #53617c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .optimization-table td {
+            font-size: 13px;
+        }
+
+        .optimization-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .optimization-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .recommended-quantity {
+            color: var(--primary);
+            font-weight: 750;
+        }
+
+        .optimization-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .optimization-status.urgent {
+            background: #feecec;
+            color: #dc2626;
+        }
+
+        .optimization-status.suggested {
+            background: #fff5df;
+            color: #b7791f;
+        }
+
+        .optimization-status.sufficient {
+            background: #eaf8f1;
+            color: #16845b;
+        }
+
+        .optimization-explanation {
+            margin-top: 25px;
+        }
+
+        .optimization-explanation p {
+            margin-top: 14px;
+            line-height: 1.7;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .optimization-explanation strong {
+            color: var(--text);
+        }
+
+        .optimization-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--muted);
+        }
+
+        .footer-note {
+            margin-top: 25px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>BizMind</h2>
+            <p>Decision Lab</p>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/forecasting">Forecasting</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/optimization" class="active">Optimization</a>
+            <a href="/simulator">What-if Simulator</a>
+            <a href="/data-management">Data Management</a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content optimization-page">
+
+        <!-- PAGE HEADER -->
+        <div class="optimization-header">
+
+            <h1>Inventory Optimization</h1>
+
+            <p>
+                Get data-driven replenishment recommendations
+                based on current stock and recent product demand.
+            </p>
+
+        </div>
+
+        <!-- REPLENISHMENT RECOMMENDATIONS -->
+        <div class="feature-card optimization-card">
+
+            <h2>Replenishment Recommendations</h2>
+
+            <p style="color:var(--muted); font-size:13px; margin-top:10px;">
+                Target stock is calculated using a 14-day
+                demand coverage assumption and minimum stock levels.
+            </p>
+
+            <div class="optimization-table-wrapper">
+
+                <table class="optimization-table">
+
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Available Stock</th>
+                            <th>Daily Demand</th>
+                            <th>Target Stock</th>
+                            <th>Supplier MOQ</th>
+                            <th>Recommended Purchase</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in recommendations %}
+
+                        <tr>
+
+                            <td>
+                                {{ item.product_name }}
+                            </td>
+
+                            <td>
+                                {{ item.category }}
+                            </td>
+
+                            <td>
+                                {{ item.available_stock }}
+                            </td>
+
+                            <td>
+                                {{ item.average_daily_demand }}
+                            </td>
+
+                            <td>
+                                {{ item.target_stock }}
+                            </td>
+
+                            <td>
+                                {{ item.minimum_order_quantity }}
+                            </td>
+
+                            <td>
+                                <strong class="recommended-quantity">
+                                    {{ item.recommended_quantity }}
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                {% if item.status == "Urgent Reorder" %}
+
+                                    <span class="optimization-status urgent">
+                                        Urgent Reorder
+                                    </span>
+
+                                {% elif item.status == "Replenishment Suggested" %}
+
+                                    <span class="optimization-status suggested">
+                                        Replenishment Suggested
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="optimization-status sufficient">
+                                        Sufficient Stock
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="8" class="optimization-empty">
+                                No product records found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- CALCULATION EXPLANATION -->
+        <div class="feature-card optimization-explanation">
+
+            <h2>How Recommendations Are Calculated</h2>
+
+            <p>
+                <strong>1. Average Daily Demand:</strong>
+                Units sold during the last 30 days divided by 30.
+            </p>
+
+            <p>
+                <strong>2. Target Stock:</strong>
+                The greater of minimum stock and 14 days of estimated demand.
+            </p>
+
+            <p>
+                <strong>3. Purchase Quantity:</strong>
+                The quantity required to reach target stock,
+                rounded up to a multiple of the supplier's MOQ.
+            </p>
+
+            <p>
+                <strong>4. Status:</strong>
+                Products at or below minimum stock are marked
+                Urgent Reorder.
+            </p>
+
+        </div>
+
+        <!-- DATA DISCLAIMER -->
+        <p class="footer-note">
+
+            Recommendations are estimates based on synthetic sales data.
+            The 14-day coverage period is an initial planning assumption,
+            not a verified supplier lead time.
+
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

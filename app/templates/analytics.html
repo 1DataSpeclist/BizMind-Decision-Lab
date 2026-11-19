@@ -1,0 +1,911 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Business Analytics | BizMind Decision Lab</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .analytics-page {
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .analytics-header {
+            margin-bottom: 30px;
+        }
+
+        .analytics-header h1 {
+            font-size: 29px;
+            font-weight: 750;
+            letter-spacing: -0.8px;
+            margin-bottom: 8px;
+        }
+
+        .analytics-header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .analytics-section {
+            margin-top: 32px;
+        }
+
+        .analytics-section-heading {
+            margin-bottom: 18px;
+        }
+
+        .analytics-section-heading h2 {
+            font-size: 19px;
+            margin-bottom: 5px;
+        }
+
+        .analytics-section-heading p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Date filter */
+
+        .analytics-filter-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 22px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .analytics-filter-heading {
+            margin-bottom: 15px;
+        }
+
+        .analytics-filter-heading h2 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .analytics-filter-heading p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .filter-mode-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .filter-mode-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .analytics-filter-form {
+            display: flex;
+            align-items: end;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .analytics-filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 190px;
+        }
+
+        .analytics-filter-field label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .analytics-filter-field input {
+            min-height: 42px;
+            padding: 9px 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            background: white;
+            font: inherit;
+        }
+
+        .analytics-filter-button {
+            min-height: 42px;
+            padding: 0 20px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: 650;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .analytics-filter-button:hover {
+            opacity: 0.92;
+        }
+
+        .reset-button {
+            background: #eef0ff;
+            color: var(--primary);
+        }
+
+        .analytics-period-note {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 13px;
+        }
+
+        .analytics-filter-error {
+            color: #b42318;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        /* Charts */
+
+        .analytics-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .analytics-chart-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .chart-card-heading {
+            margin-bottom: 20px;
+        }
+
+        .chart-card-heading h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .chart-card-heading p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        /* Products table */
+
+        .analytics-table-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .table-heading h2 {
+            font-size: 18px;
+        }
+
+        .table-count {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .analytics-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        .analytics-table thead {
+            background: #f3f5fa;
+        }
+
+        .analytics-table th {
+            padding: 15px 14px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: #53617c;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analytics-table td {
+            padding: 15px 14px;
+            font-size: 13px;
+            color: #526078;
+            border-bottom: 1px solid #edf0f5;
+            white-space: nowrap;
+        }
+
+        .analytics-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .analytics-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .analytics-table td:first-child {
+            color: var(--text);
+            font-weight: 650;
+        }
+
+        .profit-value {
+            color: #16845b !important;
+            font-weight: 650;
+        }
+
+        .margin-value {
+            display: inline-block;
+            background: #eaf8f1;
+            color: #16845b;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .analytics-empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            color: var(--muted);
+        }
+
+        .analytics-empty-state h3 {
+            color: var(--text);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .analytics-empty-state p {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .analytics-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 1000px) {
+            .analytics-chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .analytics-header h1 {
+                font-size: 24px;
+            }
+
+            .analytics-chart-card,
+            .analytics-table-card {
+                padding: 17px;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+
+            .table-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .analytics-filter-field {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>BizMind</h2>
+            <p>Decision Lab</p>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/analytics" class="active">Analytics</a>
+            <a href="/forecasting">Forecasting</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/optimization">Optimization</a>
+            <a href="/simulator">What-if Simulator</a>
+            <a href="/data-management">Data Management</a>
+        </nav>
+
+        <div style="margin-top:45px; padding:12px;">
+            <p style="color:#929bad; font-size:11px; line-height:1.7;">
+                RETAIL BUSINESS<br>
+                INTELLIGENCE PLATFORM
+            </p>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content analytics-page">
+
+        <header class="analytics-header">
+            <h1>Business Analytics</h1>
+            <p>
+                Explore sales performance, product profitability
+                and category-level business insights.
+            </p>
+        </header>
+
+        <!-- ANALYSIS DATE FILTER -->
+        <section class="analytics-filter-card">
+
+            <div class="analytics-filter-heading">
+                <h2>Select Analysis Period</h2>
+                <p>
+                    Analyse one particular day or select a custom
+                    date range. All analytics use the same period.
+                </p>
+            </div>
+
+            <form method="GET" action="/analytics"
+                  class="analytics-filter-form"
+                  id="analyticsFilterForm">
+
+                <div style="width:100%;">
+
+                    <div class="filter-mode-options">
+
+                        <label>
+                            <input type="radio"
+                                   name="mode"
+                                   value="single"
+                                   {% if filter_mode == 'single' %}checked{% endif %}>
+                            Single Day
+                        </label>
+
+                        <label>
+                            <input type="radio"
+                                   name="mode"
+                                   value="range"
+                                   {% if filter_mode == 'range' %}checked{% endif %}>
+                            Date Range
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <div class="analytics-filter-field"
+                     id="singleDateField">
+
+                    <label for="analysis_date">Select date</label>
+
+                    <input
+                        type="date"
+                        id="analysis_date"
+                        name="analysis_date"
+                        value="{{ analysis_date }}"
+                        max="{{ today }}"
+                    >
+
+                </div>
+
+                <div class="analytics-filter-field"
+                     id="startDateField">
+
+                    <label for="start_date">Start date</label>
+
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        value="{{ start_date }}"
+                        max="{{ today }}"
+                    >
+
+                </div>
+
+                <div class="analytics-filter-field"
+                     id="endDateField">
+
+                    <label for="end_date">End date</label>
+
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        value="{{ end_date }}"
+                        max="{{ today }}"
+                    >
+
+                </div>
+
+                <button type="submit"
+                        class="analytics-filter-button">
+                    Apply Filter
+                </button>
+
+                <a href="/analytics"
+                   class="analytics-filter-button reset-button">
+                    Reset to Today
+                </a>
+
+            </form>
+
+            {% if filter_error %}
+                <p class="analytics-filter-error">
+                    {{ filter_error }}
+                </p>
+            {% endif %}
+
+            <p class="analytics-period-note">
+                Showing analysis for
+                <strong>{{ selected_period }}</strong>.
+
+                Available dataset:
+                {{ data_min_date }} to {{ data_max_date }}.
+            </p>
+
+        </section>
+
+        <!-- CATEGORY ANALYSIS -->
+        <section class="analytics-section">
+
+            <div class="analytics-section-heading">
+                <h2>Category Performance</h2>
+                <p>
+                    Compare revenue and profit contribution
+                    across different product categories.
+                </p>
+            </div>
+
+            <div class="analytics-chart-grid">
+
+                <!-- REVENUE CHART -->
+                <div class="analytics-chart-card">
+
+                    <div class="chart-card-heading">
+                        <h3>Revenue by Category</h3>
+                        <p>
+                            Total sales revenue across product categories.
+                        </p>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+
+                </div>
+
+                <!-- PROFIT CHART -->
+                <div class="analytics-chart-card">
+
+                    <div class="chart-card-heading">
+                        <h3>Profit by Category</h3>
+                        <p>
+                            Distribution of profit across product categories.
+                        </p>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="profitChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TOP PRODUCTS TABLE -->
+        <section class="analytics-section">
+
+            <div class="analytics-table-card">
+
+                <div class="table-heading">
+
+                    <div>
+                        <h2>Top 10 Products by Revenue</h2>
+
+                        <p style="color:var(--muted); font-size:12px; margin-top:6px;">
+                            Products ranked by revenue in the selected period.
+                        </p>
+                    </div>
+
+                    <span class="table-count">
+                        TOP 10 PRODUCTS
+                    </span>
+
+                </div>
+
+                {% if products %}
+
+                <div class="analytics-table-wrapper">
+
+                    <table class="analytics-table">
+
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Units Sold</th>
+                                <th>Revenue</th>
+                                <th>Profit</th>
+                                <th>Profit Margin</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for product in products %}
+
+                            <tr>
+                                <td>{{ product.product_name }}</td>
+
+                                <td>{{ product.category }}</td>
+
+                                <td>
+                                    {{ "{:,}".format(product.total_units_sold or 0) }}
+                                </td>
+
+                                <td>
+                                    ₹{{ "{:,.2f}".format(product.total_revenue or 0) }}
+                                </td>
+
+                                <td class="profit-value">
+                                    ₹{{ "{:,.2f}".format(product.total_profit or 0) }}
+                                </td>
+
+                                <td>
+                                    <span class="margin-value">
+                                        {{ product.profit_margin or 0 }}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <div class="analytics-empty-state">
+                    <h3>No Sales Data Available</h3>
+                    <p>
+                        No sales records were found for the selected period.
+                        Select another date or date range to view analytics.
+                    </p>
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="analytics-footer">
+            BizMind Decision Lab |
+            Retail Business Intelligence Platform |
+            Synthetic Dataset
+        </footer>
+
+    </main>
+
+</div>
+
+<!-- FILTER AND CHART SCRIPTS -->
+<script>
+
+    // Date filter mode switching
+
+    const modeInputs = document.querySelectorAll('input[name="mode"]');
+
+    const singleDateField = document.getElementById("singleDateField");
+    const startDateField = document.getElementById("startDateField");
+    const endDateField = document.getElementById("endDateField");
+
+    const analysisDate = document.getElementById("analysis_date");
+    const startDate = document.getElementById("start_date");
+    const endDate = document.getElementById("end_date");
+
+    function updateFilterMode() {
+
+        const selectedMode = document.querySelector(
+            'input[name="mode"]:checked'
+        ).value;
+
+        if (selectedMode === "single") {
+
+            singleDateField.style.display = "flex";
+            startDateField.style.display = "none";
+            endDateField.style.display = "none";
+
+            analysisDate.required = true;
+            startDate.required = false;
+            endDate.required = false;
+
+            startDate.disabled = true;
+            endDate.disabled = true;
+            analysisDate.disabled = false;
+
+        } else {
+
+            singleDateField.style.display = "none";
+            startDateField.style.display = "flex";
+            endDateField.style.display = "flex";
+
+            analysisDate.required = false;
+            startDate.required = true;
+            endDate.required = true;
+
+            analysisDate.disabled = true;
+            startDate.disabled = false;
+            endDate.disabled = false;
+
+        }
+    }
+
+    modeInputs.forEach(input => {
+        input.addEventListener("change", updateFilterMode);
+    });
+
+    updateFilterMode();
+
+
+    // Keep end date minimum equal to start date
+
+    startDate.addEventListener("change", function () {
+
+        endDate.min = startDate.value;
+
+        if (endDate.value && endDate.value < startDate.value) {
+            endDate.value = startDate.value;
+        }
+
+    });
+
+
+    // Flask category data
+
+    const categories = {{ categories | tojson }};
+
+    const categoryLabels = categories.map(
+        item => item.category
+    );
+
+    const revenueValues = categories.map(
+        item => Number(item.total_revenue || 0)
+    );
+
+    const profitValues = categories.map(
+        item => Number(item.total_profit || 0)
+    );
+
+
+    // Revenue chart
+
+    const revenueCanvas = document.getElementById("revenueChart");
+
+    if (categories.length > 0) {
+
+        new Chart(revenueCanvas, {
+
+            type: "bar",
+
+            data: {
+                labels: categoryLabels,
+
+                datasets: [{
+                    label: "Revenue (₹)",
+                    data: revenueValues,
+                    backgroundColor: "#547765",
+                    borderRadius: 7,
+                    maxBarThickness: 55
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        position: "top",
+                        align: "start"
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return "Revenue: ₹" +
+                                    context.parsed.y.toLocaleString("en-IN", {
+                                        maximumFractionDigits: 2
+                                    });
+                            }
+                        }
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+                            callback: function(value) {
+                                return "₹" +
+                                    Number(value).toLocaleString("en-IN");
+                            }
+                        },
+
+                        grid: {
+                            color: "#edf0f5"
+                        }
+                    },
+
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+
+                }
+
+            }
+
+        });
+
+    } else {
+
+        revenueCanvas.parentElement.innerHTML =
+            '<p class="analytics-empty-state">No category revenue data available for this period.</p>';
+
+    }
+
+
+    // Profit chart
+
+    const profitCanvas = document.getElementById("profitChart");
+
+    if (categories.length > 0) {
+
+        new Chart(profitCanvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: categoryLabels,
+
+                datasets: [{
+
+                    label: "Profit (₹)",
+
+                    data: profitValues,
+
+                    backgroundColor: [
+                        "#315c4b",
+                        "#b56d4e",
+                        "#c49a52",
+                        "#718b78",
+                        "#8a7865",
+                        "#54758a"
+                    ],
+
+                    borderColor: "#ffffff",
+                    borderWidth: 3,
+                    hoverOffset: 8
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "62%",
+
+                plugins: {
+
+                    legend: {
+                        position: "bottom",
+
+                        labels: {
+                            padding: 18,
+                            usePointStyle: true,
+                            pointStyle: "circle"
+                        }
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ": ₹" +
+                                    Number(context.parsed).toLocaleString("en-IN", {
+                                        maximumFractionDigits: 2
+                                    });
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+        });
+
+    } else {
+
+        profitCanvas.parentElement.innerHTML =
+            '<p class="analytics-empty-state">No category profit data available for this period.</p>';
+
+    }
+
+</script>
+
+</body>
+</html>

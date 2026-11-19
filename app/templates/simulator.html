@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>What-if Simulator | BizMind</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>BizMind</h2>
+            <p>Decision Lab</p>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/forecasting">Forecasting</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/optimization">Optimization</a>
+            <a href="/simulator" class="active">What-if Simulator</a>
+            <a href="/data-management">Data Management</a>
+        </nav>
+
+    </aside>
+
+    <main class="main-content">
+
+        <h1>What-if Simulator</h1>
+
+        <p>
+            Test different pricing and demand scenarios to understand
+            their potential impact on profit.
+        </p>
+
+        <!-- CONFIGURATION -->
+
+        <div class="feature-card">
+
+            <h2>Configure Your Scenario</h2>
+
+            <p>
+                Enter your assumptions to evaluate the next 30 days.
+            </p>
+
+            {% if error %}
+
+                <p style="color:#dc2626; font-weight:600;">
+                    {{ error }}
+                </p>
+
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('simulator') }}">
+
+                <div style="margin-bottom:18px;">
+
+                    <label for="product_id">
+                        Select Product
+                    </label>
+
+                    <select
+                        id="product_id"
+                        name="product_id"
+                        required
+                        style="display:block;width:100%;padding:10px;margin-top:8px;"
+                    >
+
+                        <option value="">
+                            Choose a product
+                        </option>
+
+                        {% for product in products %}
+
+                            <option
+                                value="{{ product['product_id'] }}"
+                                {% if selected_product_id|string == product['product_id']|string %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ product['product_name'] }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    {% if not products %}
+                        <small style="color:#dc2626;">
+                            No products are available. Check your products
+                            and database connection.
+                        </small>
+                    {% endif %}
+
+                </div>
+
+                <div style="margin-bottom:18px;">
+
+                    <label for="selling_price">
+                        New Selling Price (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="selling_price"
+                        name="selling_price"
+                        min="0.01"
+                        step="0.01"
+                        value="{{ selling_price_input }}"
+                        placeholder="Enter proposed selling price"
+                        required
+                        style="display:block;width:100%;padding:10px;margin-top:8px;"
+                    >
+
+                </div>
+
+                <div style="margin-bottom:18px;">
+
+                    <label for="cost_price">
+                        New Cost Price (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="cost_price"
+                        name="cost_price"
+                        min="0"
+                        step="0.01"
+                        value="{{ cost_price_input }}"
+                        placeholder="Enter proposed cost price"
+                        required
+                        style="display:block;width:100%;padding:10px;margin-top:8px;"
+                    >
+
+                </div>
+
+                <div style="margin-bottom:18px;">
+
+                    <label for="demand_change">
+                        Expected Demand Change (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="demand_change"
+                        name="demand_change"
+                        min="-100"
+                        max="500"
+                        step="0.1"
+                        value="{{ demand_change_input }}"
+                        required
+                        style="display:block;width:100%;padding:10px;margin-top:8px;"
+                    >
+
+                    <small>
+                        Example: 20 means demand increases by 20%.
+                        -10 means demand decreases by 10%.
+                    </small>
+
+                </div>
+
+                <button type="submit">
+                    Run Simulation
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- SIMULATION RESULTS -->
+
+        {% if result %}
+
+        <div class="feature-card">
+
+            <h2>Simulation Results</h2>
+
+            <p>
+                Product:
+                <strong>{{ result.product_name }}</strong>
+            </p>
+
+            <p>
+                Available Stock:
+                <strong>{{ result.available_stock }}</strong> units
+            </p>
+
+            <p>
+                Historical Units Sold (30 Days):
+                <strong>{{ result.units_sold_30_days }}</strong> units
+            </p>
+
+            <p>
+                Average Daily Demand:
+                <strong>{{ result.average_daily_demand }}</strong> units
+            </p>
+
+            <hr>
+
+            <h3>Scenario Assumptions</h3>
+
+            <div style="overflow-x:auto;">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Price</th>
+                            <th>Current</th>
+                            <th>Proposed</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Selling Price</td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.current_selling_price) }}
+                            </td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.new_selling_price) }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Cost Price</td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.current_cost_price) }}
+                            </td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.new_cost_price) }}
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <p>
+                Expected Demand Change:
+                <strong>{{ result.demand_change }}%</strong>
+            </p>
+
+            <p>
+                Baseline Demand:
+                <strong>{{ result.baseline_demand }}</strong> units
+            </p>
+
+            <p>
+                Adjusted Scenario Demand:
+                <strong>{{ result.scenario_demand }}</strong> units
+            </p>
+
+            <hr>
+
+            <h3>Baseline vs Scenario</h3>
+
+            <div style="overflow-x:auto;">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Current Situation</th>
+                            <th>What-if Scenario</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Projected Units Sold</td>
+                            <td>{{ result.baseline_units }}</td>
+                            <td>{{ result.scenario_units }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Estimated Revenue</td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.baseline_revenue) }}
+                            </td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.scenario_revenue) }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Estimated Profit</td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.baseline_profit) }}
+                            </td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(result.scenario_profit) }}
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <hr>
+
+            <h3>Business Impact</h3>
+
+            <p>
+                Profit Difference:
+                <strong>
+                    ₹{{ "{:,.2f}".format(result.profit_difference) }}
+                </strong>
+            </p>
+
+            <p>
+                Remaining Stock:
+                <strong>{{ result.remaining_stock }}</strong> units
+            </p>
+
+            <p>
+                Unfulfilled Demand:
+                <strong>{{ result.unfulfilled_demand }}</strong> units
+            </p>
+
+            {% if result.profit_difference > 0 %}
+
+                <p style="color:#16a34a;font-weight:600;">
+                    The scenario shows an increase in estimated profit.
+                </p>
+
+            {% elif result.profit_difference < 0 %}
+
+                <p style="color:#dc2626;font-weight:600;">
+                    The scenario shows a decrease in estimated profit.
+                </p>
+
+            {% else %}
+
+                <p>
+                    The scenario shows no change in estimated profit.
+                </p>
+
+            {% endif %}
+
+            {% if result.unfulfilled_demand > 0 %}
+
+                <p style="color:#d97706;">
+                    Warning: Available stock is insufficient to meet
+                    the entire projected demand.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+        <!-- EXPLANATION -->
+
+        <div class="feature-card">
+
+            <h2>How the Simulator Works</h2>
+
+            <p>
+                <strong>1. Baseline:</strong>
+                Uses the product's current selling price, cost price
+                and sales from the last 30 days.
+            </p>
+
+            <p>
+                <strong>2. Demand Adjustment:</strong>
+                Applies the manually entered percentage change
+                to historical demand.
+            </p>
+
+            <p>
+                <strong>3. Stock Constraint:</strong>
+                Projected sales cannot exceed available inventory.
+            </p>
+
+            <p>
+                <strong>4. Revenue:</strong>
+                Calculated by multiplying projected units sold
+                by the selling price.
+            </p>
+
+            <p>
+                <strong>5. Profit:</strong>
+                Calculated by subtracting total product cost
+                from estimated revenue.
+            </p>
+
+            <p>
+                <strong>6. Business Impact:</strong>
+                Compares scenario profit with baseline profit
+                and calculates remaining stock and unfulfilled demand.
+            </p>
+
+        </div>
+
+        <p class="footer-note">
+            Results are hypothetical estimates based on synthetic
+            historical sales data. Demand changes are manually assumed
+            and are not automatically predicted from price changes.
+            These estimates do not guarantee future outcomes.
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

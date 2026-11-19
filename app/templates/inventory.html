@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inventory Management | BizMind</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .inventory-page {
+            min-width: 0;
+            min-height: 100vh;
+            height: auto;
+            overflow: visible;
+        }
+
+        .inventory-header {
+            margin-bottom: 28px;
+        }
+
+        .inventory-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .inventory-header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .inventory-table-card {
+            margin-top: 25px;
+            overflow: hidden;
+        }
+
+        .inventory-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .inventory-table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            padding: 14px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .inventory-table th {
+            background: #f3f5fa;
+            color: #53617c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .inventory-table td {
+            font-size: 13px;
+        }
+
+        .inventory-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .inventory-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .inventory-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--muted);
+        }
+
+        .footer-note {
+            margin-top: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>BizMind</h2>
+            <p>Decision Lab</p>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/forecasting">Forecasting</a>
+            <a href="/inventory" class="active">Inventory</a>
+            <a href="/optimization">Optimization</a>
+            <a href="/simulator">What-if Simulator</a>
+            <a href="/data-management">Data Management</a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content inventory-page">
+
+        <!-- PAGE HEADER -->
+        <div class="inventory-header">
+
+            <h1>Inventory Management</h1>
+
+            <p>
+                Monitor product stock levels and identify
+                products that may require replenishment.
+            </p>
+
+        </div>
+
+        <!-- INVENTORY TABLE -->
+        <div class="feature-card inventory-table-card">
+
+            <h2>Current Inventory Overview</h2>
+
+            <div class="inventory-table-wrapper">
+
+                <table class="inventory-table">
+
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Available Stock</th>
+                            <th>Minimum Stock</th>
+                            <th>Daily Demand</th>
+                            <th>Days Remaining</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for product in products %}
+
+                        <tr>
+
+                            <td>{{ product.product_name }}</td>
+
+                            <td>{{ product.category }}</td>
+
+                            <td>
+                                {{ product.available_stock }}
+                            </td>
+
+                            <td>
+                                {{ product.minimum_stock }}
+                            </td>
+
+                            <td>
+                                {{ product.avg_daily_demand }}
+                            </td>
+
+                            <td>
+                                {% if product.days_remaining is not none %}
+                                    {{ product.days_remaining }} days
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+
+                            <td>
+
+                                {% if product.available_stock <= product.minimum_stock %}
+
+                                    <span class="stock-critical">
+                                        Reorder Required
+                                    </span>
+
+                                {% elif product.days_remaining is not none
+                                      and product.days_remaining <= 7 %}
+
+                                    <span class="stock-warning">
+                                        Low Stock
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="stock-healthy">
+                                        Healthy
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="7" class="inventory-empty">
+                                No inventory records found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER NOTE -->
+        <p class="footer-note">
+            Inventory figures are retrieved from the BizMind MySQL database.
+            Demand estimates use the last 30 days of sales.
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>
